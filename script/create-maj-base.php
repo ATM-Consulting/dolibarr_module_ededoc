@@ -10,6 +10,12 @@ if(!defined('INC_FROM_DOLIBARR')) {
 
 }
 
+global $db;
+
+dol_include_once('/core/class/extrafields.class.php');
+$extrafields=new ExtraFields($db);
+$res = $extrafields->addExtraField('ededoc_send_date', 'EdedocSendDate', 'date', 0, '', 'facture');
+
 
 /* uncomment
 

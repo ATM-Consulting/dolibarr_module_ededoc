@@ -61,28 +61,71 @@ class ActionsEdedoc
 	 */
 	function doActions($parameters, &$object, &$action, $hookmanager)
 	{
-		$error = 0; // Error counter
-		$myvalue = 'test'; // A result value
-
-		print_r($parameters);
-		echo "action: " . $action;
-		print_r($object);
-
-		if (in_array('somecontext', explode(':', $parameters['context'])))
+		
+		if (in_array('invoicecard', explode(':', $parameters['context'])))
 		{
-		  // do something only for the context 'somecontext'
+		  	global $langs, $conf;
+		  	$langs->load('ededoc@ededoc');
+		  	
+		  	if($action === 'send_ededoc') {
+		  		
+		  		$objectref = dol_sanitizeFileName($object->ref);
+		  		$dir = $conf->facture->dir_output . '/' . $objectref;
+		  		$file = $dir . '/' . $objectref . '.pdf';
+		  		
+		  		if(empty($conf->global->EDEDOC_HOST)){
+		  			setEventMessage($langs->trans('ErrorNoHostFTP'),'errors');
+		  		}
+		  		else {
+		  			$conn_id = ftp_connect($conf->global->EDEDOC_HOST, $conf->global->EDEDOC_HOST_PORT);
+		  			if($conn_id === false){
+		  				setEventMessage($langs->trans('ErrorConnectionHostFTP'),'errors');
+		  			}
+		  			else {
+		  				
+		  				$login_result = ftp_login($conn_id, $conf->global->EDEDOC_LOGIN, $conf->global->EDEDOC_PASSWORD);
+		  				ftp_pasv($conn_id, false);
+		  				if($login_result === false) {
+		  					setEventMessage($langs->trans('ErrorConnectionLoginFTP'),'errors');
+		  				}
+		  				else{
+		  				//	var_dump(ftp_pwd($conn_id));exit;
+		  					$upload = ftp_put($conn_id, '/'.basename($file), $file, FTP_ASCII);  // upload the file
+		  					if ($upload === false) {
+		  						setEventMessage($langs->trans('ErrorConnectionPutFileFTP'),'errors');
+		  					}
+		  					else{
+		  						setEventMessage($langs->trans('InvoiceSentToEdedoc'));
+		  					}
+		  				}
+		  				
+		  				ftp_close($conn_id);
+		  				
+		  			}
+		  		}
+		  		
+		  	}
+		  	
 		}
 
-		if (! $error)
+		
+	}
+	
+	
+	function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager)
+	{
+		
+		if (in_array('invoicecard', explode(':', $parameters['context'])))
 		{
-			$this->results = array('myreturn' => $myvalue);
-			$this->resprints = 'A text to show';
-			return 0; // or return 1 to replace standard code
+		
+			if(empty($object->array_options['options_ededoc_send_date']) && $object->statut == 1) {
+				global $langs;
+				echo '<div class="inline-block divButAction"><a class="butAction" href="'.dol_buildpath('/compta/facture/card.php',1).'?facid='.$object->id.'&action=send_ededoc">'.$langs->trans('SendToEdedoc').'</a></div>';
+				
+			}
+			
 		}
-		else
-		{
-			$this->errors[] = 'Error message';
-			return -1;
-		}
+		
+		
 	}
 }
