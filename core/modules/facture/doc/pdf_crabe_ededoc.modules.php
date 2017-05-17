@@ -1661,7 +1661,6 @@ class pdf_crabe_ededoc extends ModelePDFFactures
 			// Show sender
 			$posy= 40 ;
 			$posx=$this->marge_gauche;
-			$posx=$this->page_largeur-$this->marge_droite-80;
 			
 			$hautcadre=38;
 			$widthrecbox=92;
@@ -1716,11 +1715,10 @@ class pdf_crabe_ededoc extends ModelePDFFactures
 			if ($this->page_largeur < 210) $widthrecbox=84;	// To work with US executive format
 			$posy=40 ;
 			$posx=$this->page_largeur-$this->marge_droite-$widthrecbox;
-			$posx=$this->marge_gauche;
 			
 			$pdf->SetTextColor(255,255,255);
 			$pdf->SetXY($posx+2,$posy-10);
-			$pdf->MultiCell($widthrecbox, 5, $object->client->email ,0,'L');
+			$pdf->MultiCell($widthrecbox, 5, $object->thirdparty->email ,0,'L');
 			
 			// Show recipient frame
 			$pdf->SetTextColor(0,0,0);

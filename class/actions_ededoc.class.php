@@ -118,7 +118,7 @@ class ActionsEdedoc
 		if (in_array('invoicecard', explode(':', $parameters['context'])))
 		{
 		
-			if(empty($object->array_options['options_ededoc_send_date']) && $object->statut == 1) {
+			if(empty($object->array_options['options_ededoc_send_date']) && $object->modelpdf==='crabe_ededoc' && $object->statut == 1) {
 				global $langs;
 				echo '<div class="inline-block divButAction"><a class="butAction" href="'.dol_buildpath('/compta/facture/card.php',1).'?facid='.$object->id.'&action=send_ededoc">'.$langs->trans('SendToEdedoc').'</a></div>';
 				
