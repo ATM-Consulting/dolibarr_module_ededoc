@@ -89,7 +89,8 @@ class modEdedoc extends DolibarrModules
 		//							'workflow' => array('WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2'=>array('enabled'=>'! empty($conf->module1->enabled) && ! empty($conf->module2->enabled)', 'picto'=>'yourpicto@ededoc')) // Set here all workflow context managed by module
 		//                        );
 		$this->module_parts = array(
-				'hooks'=>array('invoicecard')
+				'models' => 1
+				,'hooks'=>array('invoicecard')
 		);
 
 		// Data directories to create when module is enabled.
