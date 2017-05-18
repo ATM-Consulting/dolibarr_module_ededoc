@@ -59,7 +59,7 @@ class ActionsEdedoc
 	 * @param   HookManager     $hookmanager    Hook manager propagated to allow calling another hook
 	 * @return  int                             < 0 on error, 0 on success, 1 to replace standard code
 	 */
-	function doActions($parameters, &$object, &$action, $hookmanager)
+	function doActions($parameters, Facture &$object, &$action, $hookmanager)
 	{
 		
 		if (in_array('invoicecard', explode(':', $parameters['context'])))
@@ -73,6 +73,30 @@ class ActionsEdedoc
 		  		$dir = $conf->facture->dir_output . '/' . $objectref;
 		  		$file = $dir . '/' . $objectref . '.pdf';
 		  		
+		  		$ch = curl_init();
+		  		$fp = fopen($file, 'r');
+		  		curl_setopt($ch, CURLOPT_URL, 'ftp://'.$conf->global->EDEDOC_HOST.':'.$conf->global->EDEDOC_HOST_PORT.'/'.$conf->global->EDEDOC_CUSTOMER_CODE.'/'.$objectref . '.pdf');
+		  		curl_setopt($ch, CURLOPT_USERPWD, $conf->global->EDEDOC_LOGIN.':'.$conf->global->EDEDOC_PASSWORD);
+		  		curl_setopt($ch, CURLOPT_UPLOAD, 1);
+		  		curl_setopt($ch, CURLOPT_INFILE, $fp);
+		  		curl_setopt($ch, CURLOPT_FTP_CREATE_MISSING_DIRS, 1);
+		  		curl_setopt($ch, CURLOPT_INFILESIZE, filesize($file));
+		  		curl_exec ($ch);
+		  		$error_no = curl_errno($ch);
+		  		$error = curl_error($ch);
+		  		
+		  		curl_close ($ch);
+		  		if ($error_no == 0) {
+		  			setEventMessage($langs->trans('InvoiceSentToEdedoc'));
+		  			
+		  			$object->array_options['options_ededoc_send_date'] = date('Y-m-d H:i:s');
+		  			$object->insertExtraFields();
+		  			
+		  		} else {
+		  			setEventMessage($langs->trans('ErrorConnectionPutFileFTP') . $error_no.' > '.$error,'errors');
+		  		}
+		  		
+		  		/*
 		  		if(empty($conf->global->EDEDOC_HOST)){
 		  			setEventMessage($langs->trans('ErrorNoHostFTP'),'errors');
 		  		}
@@ -102,7 +126,7 @@ class ActionsEdedoc
 		  				ftp_close($conn_id);
 		  				
 		  			}
-		  		}
+		  		}*/
 		  		
 		  	}
 		  	
@@ -120,7 +144,10 @@ class ActionsEdedoc
 		
 			if(empty($object->array_options['options_ededoc_send_date']) && $object->modelpdf==='crabe_ededoc' && $object->statut == 1) {
 				global $langs;
-				echo '<div class="inline-block divButAction"><a class="butAction" href="'.dol_buildpath('/compta/facture/card.php',1).'?facid='.$object->id.'&action=send_ededoc">'.$langs->trans('SendToEdedoc').'</a></div>';
+				
+				$facurl = DOL_VERSION>5.0 ? '/compta/facture/card.php' : '/compta/facture.php';
+				
+				echo '<div class="inline-block divButAction"><a class="butAction" href="'.dol_buildpath($facurl,1).'?facid='.$object->id.'&action=send_ededoc">'.$langs->trans('SendToEdedoc').'</a></div>';
 				
 			}
 			
