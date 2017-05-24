@@ -16,6 +16,6 @@ for codeClient in ${ListeRep}; do
                 /root/put-file.sh ${filename} ${codeClient}
 
         done 
-
+	cd ..
 done
 
