@@ -46,31 +46,21 @@ $action = GETPOST('action', 'alpha');
 /*
  * Actions
  */
-if (preg_match('/set_(.*)/',$action,$reg))
+if ($action=='setvar')
 {
-	$code=$reg[1];
-	if (dolibarr_set_const($db, $code, GETPOST($code), 'chaine', 0, '', $conf->entity) > 0)
-	{
-		header("Location: ".$_SERVER["PHP_SELF"]);
-		exit;
+	$error=0;
+	foreach ($_POST as $key=>$val) {
+		if (strpos($key, 'EDEDOC_') !==false) {
+			$result=dolibarr_set_const($db, $key, GETPOST($key), 'chaine', 0, '', $conf->entity);
+			if ($result<0)
+			{
+				$error++;
+				setEventMessage($langs->trans("Error") . " " . $db->lasterror,'errors');
+			}
+		}
 	}
-	else
-	{
-		dol_print_error($db);
-	}
-}
-	
-if (preg_match('/del_(.*)/',$action,$reg))
-{
-	$code=$reg[1];
-	if (dolibarr_del_const($db, $code, 0) > 0)
-	{
-		Header("Location: ".$_SERVER["PHP_SELF"]);
-		exit;
-	}
-	else
-	{
-		dol_print_error($db);
+	if (empty($error)) {
+		setEventMessage($langs->trans("SetupSaved"),'mesgs');
 	}
 }
 
@@ -96,12 +86,13 @@ dol_fiche_head(
 );
 
 // Setup page goes here
-$form=new Form($db);
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="action" value="setvar">';
 $var=false;
 print '<table class="noborder" width="100%">';
 print '<tr class="liste_titre">';
 print '<td>'.$langs->trans("Parameters").'</td>'."\n";
-print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="center" width="100">'.$langs->trans("Value").'</td>'."\n";
 
 
@@ -109,77 +100,49 @@ print '<td align="center" width="100">'.$langs->trans("Value").'</td>'."\n";
 $var=!$var;
 print '<tr '.$bc[$var].'>';
 print '<td>'.$langs->trans("EDEDOC_HOST").'</td>';
-print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
-print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-print '<input type="hidden" name="action" value="set_EDEDOC_HOST">';
 print '<input type="text" name="EDEDOC_HOST" value="'.$conf->global->EDEDOC_HOST.'">';
-
-print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
-print '</form>';
 print '</td></tr>';
 
 $var=!$var;
 print '<tr '.$bc[$var].'>';
 print '<td>'.$langs->trans("EDEDOC_HOST_PORT").'</td>';
-print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
-print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-print '<input type="hidden" name="action" value="set_EDEDOC_HOST_PORT">';
 print '<input type="text" name="EDEDOC_HOST_PORT" value="'.$conf->global->EDEDOC_HOST_PORT.'">';
-
-print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
-print '</form>';
 print '</td></tr>';
 
 
 $var=!$var;
 print '<tr '.$bc[$var].'>';
 print '<td>'.$langs->trans("EDEDOC_LOGIN").'</td>';
-print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
-print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-print '<input type="hidden" name="action" value="set_EDEDOC_LOGIN">';
 print '<input type="text" name="EDEDOC_LOGIN" value="'.$conf->global->EDEDOC_LOGIN.'">';
-
-print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
-print '</form>';
 print '</td></tr>';
 
 $var=!$var;
 print '<tr '.$bc[$var].'>';
 print '<td>'.$langs->trans("EDEDOC_PASSWORD").'</td>';
-print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
-print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-print '<input type="hidden" name="action" value="set_EDEDOC_PASSWORD">';
-print '<input type="text" name="EDEDOC_PASSWORD" value="'.$conf->global->EDEDOC_PASSWORD.'">';
-
-print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
-print '</form>';
+print '<input type="password" name="EDEDOC_PASSWORD" value="'.$conf->global->EDEDOC_PASSWORD.'">';
 print '</td></tr>';
 
 
 $var=!$var;
 print '<tr '.$bc[$var].'>';
 print '<td>'.$langs->trans("EDEDOC_CUSTOMER_CODE").'</td>';
-print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
-print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-print '<input type="hidden" name="action" value="set_EDEDOC_CUSTOMER_CODE">';
 print '<input type="text" name="EDEDOC_CUSTOMER_CODE" value="'.$conf->global->EDEDOC_CUSTOMER_CODE.'">';
-
-print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
-print '</form>';
 print '</td></tr>';
 
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td colspan="2" align="center">';
+print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+print '</td></tr>';
 
 print '</table>';
+
+print '</form>';
 
 llxFooter();
 

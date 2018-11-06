@@ -9,7 +9,7 @@ EdedocAbout = A propos du module Ededoc
 AllowToSendInvoiceToEdedoc=Peut envoyer une facture à ededoc
 EdedocSendDate=Date d'envoi par Ededoc
 SendToEdedoc=Envoyer via Ededoc
-InvoiceSentToEdedoc=Facture envoyée à Ededoc
+InvoiceSentToEdedoc=Facture %s envoyée à Ededoc
 
 EDEDOC_CUSTOMER_CODE=Code client Ededoc
 EDEDOC_LOGIN=Identifiant FTP
@@ -19,3 +19,5 @@ EDEDOC_HOST_PORT=Port FTP
 
 ErrorConnectionHostFTP=Impossible de se connecter à l'hôte FTP
 ErrorConnectionPutFileFTP=Erreur lors du dépôt du fichier
+
+EDEDOCDisabledSetUpNotComplete = Configuration du module EDEDOC incompléte (Veuillez contacter votre administrateur Dolibarr/C'PRO)

@@ -89,8 +89,11 @@ class modEdedoc extends DolibarrModules
 		//							'workflow' => array('WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2'=>array('enabled'=>'! empty($conf->module1->enabled) && ! empty($conf->module2->enabled)', 'picto'=>'yourpicto@ededoc')) // Set here all workflow context managed by module
 		//                        );
 		$this->module_parts = array(
-				'models' => 1
-				,'hooks'=>array('invoicecard')
+				'hooks' => array(
+						'invoicecard',
+						'pdfgeneration',
+						'invoicelist'
+				)
 		);
 
 		// Data directories to create when module is enabled.
@@ -105,8 +108,8 @@ class modEdedoc extends DolibarrModules
 		$this->depends = array();		// List of modules id that must be enabled if this module is enabled
 		$this->requiredby = array();	// List of modules id to disable if this one is disabled
 		$this->conflictwith = array();	// List of modules id this module is in conflict with
-		$this->phpmin = array(5,0);					// Minimum version of PHP required by module
-		$this->need_dolibarr_version = array(3,0);	// Minimum version of Dolibarr required by module
+		$this->phpmin = array(5,3);					// Minimum version of PHP required by module
+		$this->need_dolibarr_version = array(7,0);	// Minimum version of Dolibarr required by module
 		$this->langfiles = array("ededoc@ededoc");
 
 		// Constants
@@ -251,7 +254,7 @@ class modEdedoc extends DolibarrModules
 	function init($options='')
 	{
 		$sql = array();
-		
+
 		define('INC_FROM_DOLIBARR',true);
 
 		dol_include_once('/ededoc/config.php');
