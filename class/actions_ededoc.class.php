@@ -67,8 +67,8 @@ class ActionsEdedoc
 			$langs->load('ededoc@ededoc');
 
 			if ($action === 'send_ededoc' && $user->rights->ededoc->invoice->send) {
-				$result=$this->sendInvoiceEdoc($object);
-				if ($result<0) {
+				$result = $this->sendInvoiceEdoc($object);
+				if ($result < 0) {
 					setEventMessages(null, $this->errors, 'errors');
 				} else {
 					setEventMessage($langs->trans('InvoiceSentToEdedoc', $object->ref));
@@ -79,27 +79,25 @@ class ActionsEdedoc
 		if (in_array('invoicelist', explode(':', $parameters['context']))) {
 			global $langs, $conf, $user, $db;
 			$langs->load('ededoc@ededoc');
-			$massaction=GETPOST('massaction','alpha');
+			$massaction = GETPOST('massaction', 'alpha');
 
 			if ($massaction === 'sends_ededoc' && $user->rights->ededoc->invoice->send) {
 				$toselect = GETPOST('toselect', 'array');
-				if (is_array($toselect) && count($toselect)>0) {
+				if (is_array($toselect) && count($toselect) > 0) {
 					$invoice = new Facture($db);
-					foreach($toselect as $idinvoice) {
-						$result=$invoice->fetch($idinvoice);
-						if ($result<0) {
+					foreach ( $toselect as $idinvoice ) {
+						$result = $invoice->fetch($idinvoice);
+						if ($result < 0) {
 							setEventMessage($invoice->error, 'errors');
 						} elseif (empty($invoice->array_options['options_ededoc_send_date']) && $invoice->statut == 1) {
-							$result=$this->sendInvoiceEdoc($invoice);
-							if ($result<0) {
+							$result = $this->sendInvoiceEdoc($invoice);
+							if ($result < 0) {
 								setEventMessages(null, $this->errors, 'errors');
-							}
-							else {
+							} else {
 								setEventMessage($langs->trans('InvoiceSentToEdedoc', $invoice->ref));
 							}
 						}
 					}
-
 				}
 			}
 		}
@@ -154,7 +152,7 @@ class ActionsEdedoc
 			}
 			if ($cansend) {
 				$langs->load('ededoc@ededoc');
-				$this->resprints='<option value="sends_ededoc">'.$langs->trans('SendToEdedoc').'</option>';
+				$this->resprints = '<option value="sends_ededoc">' . $langs->trans('SendToEdedoc') . '</option>';
 			}
 		}
 		return 0;
@@ -162,7 +160,7 @@ class ActionsEdedoc
 
 	/**
 	 *
- 	 * @param array() $parameters Hook metadatas (context, etc...)
+	 * @param array() $parameters Hook metadatas (context, etc...)
 	 * @param CommonObject &$object The object to process (an invoice if you are in invoice module, a propale in propale's module, etc...)
 	 * @param string &$action Current action (if set). Generally create or edit or null
 	 * @param HookManager $hookmanager Hook manager propagated to allow calling another hook
@@ -182,18 +180,17 @@ class ActionsEdedoc
 
 		if ($object->table_element == 'facture') {
 
-			$arrayidcontact=$object->getIdContact('external','BILLING');
-			if (count($arrayidcontact) > 0)
-			{
-				$usecontact=true;
-				$result=$object->fetch_contact($arrayidcontact[0]);
+			$arrayidcontact = $object->getIdContact('external', 'BILLING');
+			if (count($arrayidcontact) > 0) {
+				$usecontact = true;
+				$result = $object->fetch_contact($arrayidcontact[0]);
 			}
 			if ($usecontact) {
-				$phone=$object->contact->phone_pro;
-				$email=$object->contact->email;
+				$phone = $object->contact->phone_pro;
+				$email = $object->contact->email;
 			} else {
-				$phone=$object->thirdparty->phone;
-				$email=$object->thirdparty->email;
+				$phone = $object->thirdparty->phone;
+				$email = $object->thirdparty->email;
 			}
 
 			$pdf = pdf_getInstance();
@@ -201,7 +198,7 @@ class ActionsEdedoc
 				$pdf->setPrintHeader(false);
 				$pdf->setPrintFooter(false);
 			}
-			$pdf->SetFont(pdf_getPDFFont($outputlangs),'',pdf_getPDFFontSize($outputlangs));
+			$pdf->SetFont(pdf_getPDFFont($outputlangs), '', pdf_getPDFFontSize($outputlangs) - 1);
 
 			if ($conf->global->MAIN_DISABLE_PDF_COMPRESSION) {
 				$pdf->SetCompression(false);
@@ -218,7 +215,7 @@ class ActionsEdedoc
 			$pdf->setPage(1);
 			$pdf->SetXY(20, 3);
 			$pdf->SetTextColor(255, 255, 255);
-			//$pdf->SetTextColor(0, 0, 0);
+			// $pdf->SetTextColor(0, 0, 0);
 			$pdf->Cell(5, 0, $email, 0, 1, 'L');
 			$pdf->SetXY(70, 3);
 			$pdf->Cell(5, 0, $phone, 0, 1, 'L');
@@ -226,7 +223,6 @@ class ActionsEdedoc
 			$pdf->Cell(5, 0, $object->thirdparty->email, 0, 1, 'L');
 			$pdf->SetXY(160, 3);
 			$pdf->Cell(5, 0, $object->thirdparty->phone, 0, 1, 'L');
-
 
 			$pdf->Output($parameters['file'], 'F');
 			if (! empty($conf->global->MAIN_UMASK)) {
@@ -263,20 +259,20 @@ class ActionsEdedoc
 			curl_close($ch);
 			if ($error_no == 0) {
 				$object->array_options['options_ededoc_send_date'] = dol_now();
-				$result=$object->insertExtraFields();
-				if ($result<0) {
-					$this->errors[]=$object->error;
-					return -1;
+				$result = $object->insertExtraFields();
+				if ($result < 0) {
+					$this->errors[] = $object->error;
+					return - 1;
 				} else {
 					return 1;
 				}
 			} else {
-				$this->errors[]=$langs->trans('ErrorConnectionPutFileFTP') . ' ' . $error_no . ' > ' . $error;
-				return -1;
+				$this->errors[] = $langs->trans('ErrorConnectionPutFileFTP') . ' ' . $error_no . ' > ' . $error;
+				return - 1;
 			}
 		} else {
-			$this->errors[]=$langs->trans('File') . ' ' . $file . ' do not exists or is not readable';
-			return -1;
+			$this->errors[] = $langs->trans('File') . ' ' . $file . ' do not exists or is not readable';
+			return - 1;
 		}
 	}
 }
